@@ -1,0 +1,18 @@
+node{
+    stage("Git Checkout"){
+        git branch: 'main', url: 'https://github.com/Ab-D-ev/CI-CD-Project.git'
+    }
+    stage("docker build"){
+        sh 'docker image build -t $JOB_NAME:v1.$BUILD_ID .'
+        sh 'docker image tag $JOB_NAME:v1.$BUILD_ID abdallahdoc/$JOB_NAME:v1.$BUILD_ID'
+        sh 'docker image tag $JOB_NAME:v1.$BUILD_ID abdallahdoc/$JOB_NAME:latest'
+        }
+    stage("Push to DockerHub"){
+        withCredentials([string(credentialsId: 'DockerPass', variable: 'DockerPass')]) {
+        sh 'docker login -u abdallahdoc -p ${DockerPass}'
+        sh 'docker image push abdallahdoc/$JOB_NAME:v1.$BUILD_ID'
+        sh 'docker image push abdallahdoc/$JOB_NAME:latest'
+        }
+    }
+}
+
